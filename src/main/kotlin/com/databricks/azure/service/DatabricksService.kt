@@ -18,8 +18,8 @@ class DatabricksService(
     private val restTemplate: RestTemplate,
     @Value("\${databricks.host}") private val databricksHost: String,
     @Value("\${databricks.token}") private val databricksToken: String
-) {
-    fun enviarDados(dados: List<ValidacoesRequest>) {
+) : DatabricksImpl {
+    override fun enviarDados(dados: List<ValidacoesRequest>) {
         val sql =
             "INSERT INTO default.validacoes_temp (" +
                     "descricao," +
@@ -43,7 +43,7 @@ class DatabricksService(
         })
     }
 
-    fun consultarJobs(): List<JobInfo> {
+    override fun consultarJobs(): List<JobInfo> {
         val url = "$databricksHost/api/2.1/jobs/list"
         val headers = HttpHeaders().apply {
             set("Authorization", "Bearer $databricksToken")
@@ -79,5 +79,10 @@ class DatabricksService(
                 configuracoes = configuracoes.ifEmpty { null }
             )
         }
+    }
+
+    override fun consultarDeltaTable(schema: String, tabela: String, limite: Int): List<Map<String, Any>> {
+        val sql = "SELECT * FROM $schema.$tabela LIMIT $limite"
+        return jdbcTemplate.queryForList(sql) as List<Map<String, Any>>
     }
 }

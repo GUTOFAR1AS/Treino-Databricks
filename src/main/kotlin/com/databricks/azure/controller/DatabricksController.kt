@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*
 class DatabricksController(
     private val databricksService: DatabricksService,
 ) {
+    // ==================================================================================//
     @Operation(
         summary = "Enviar dados para Databricks",
         description = "Envia uma lista de dados de validação para a Delta Table no Databricks."
@@ -39,6 +40,7 @@ class DatabricksController(
             )
         }
     }
+    // ==================================================================================//
     @Operation(
         summary = "Consultar Jobs Existentes",
         description = "Consulta os jobs existentes no Databricks e retorna informações detalhadas."
@@ -56,6 +58,37 @@ class DatabricksController(
         return try {
             val jobs = databricksService.consultarJobs()
             ResponseEntity.ok(jobs)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ResponseEntity.status(500).body(emptyList())
+        }
+    }
+    // ==================================================================================//
+    @Operation(
+        summary = "Consultas Delta Table",
+        description = "Consulta os dados da Delta Table no Databricks e retorna os resultados."
+    )
+    @ApiResponse(
+        description = "Dados consultados com sucesso",
+        responseCode = "200",
+    )
+    @ApiResponse(
+        description = "Erro interno do servidor",
+        responseCode = "500",
+    )
+    @GetMapping("/delta-table")
+    fun consultarDeltaTable(
+        @RequestParam(required = true) schema: String,
+        @RequestParam(required = true) tabela: String,
+        @RequestParam(required = true) limite: Int,
+    ): ResponseEntity<List<Map<String, Any>>> {
+        return try {
+            val resultados = databricksService.consultarDeltaTable(
+                schema,
+                tabela,
+                limite
+            )
+            ResponseEntity.ok(resultados)
         } catch (e: Exception) {
             e.printStackTrace()
             ResponseEntity.status(500).body(emptyList())
