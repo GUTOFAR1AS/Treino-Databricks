@@ -1,5 +1,6 @@
 package com.databricks.azure.controller
 
+import com.databricks.azure.models.JobInfo
 import com.databricks.azure.models.ValidacoesRequest
 import com.databricks.azure.service.DatabricksService
 import io.swagger.v3.oas.annotations.Operation
@@ -36,6 +37,28 @@ class DatabricksController(
             ResponseEntity.status(500).body(
                 "Erro ao enviar para o Databricks: ${e.message}"
             )
+        }
+    }
+    @Operation(
+        summary = "Consultar Jobs Existentes",
+        description = "Consulta os jobs existentes no Databricks e retorna informações detalhadas."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Consulta realizada com sucesso"
+    )
+    @ApiResponse(
+        responseCode = "500",
+        description = "Erro interno do servidor"
+    )
+    @GetMapping("/jobs")
+    fun consultarJobs(): ResponseEntity<List<JobInfo>> {
+        return try {
+            val jobs = databricksService.consultarJobs()
+            ResponseEntity.ok(jobs)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ResponseEntity.status(500).body(emptyList())
         }
     }
 }
