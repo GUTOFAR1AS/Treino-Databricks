@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -123,27 +124,27 @@ class DatabricksController(
         }
     }
     // ==================================================================================//
-    @Operation(
-        summary = "Rodar Jobs Automaticamente",
-        description = "Roda os jobs automaticamente no Databricks, seguindo a lógica definida no serviço."
-    )
-    @ApiResponse(
-        description = "Jobs rodados automaticamente com sucesso",
-        responseCode = "200",
-    )
-    @ApiResponse(
-        description = "Erro ao rodar os jobs automaticamente",
-        responseCode = "400",
-    )
-    @PostMapping("/run-jobs")
-    fun runJobsAutomaticamente(): ResponseEntity<String> {
-         return try {
-             databricksService.runJobsAutomaticamente()
-             return ResponseEntity.ok("Jobs automaticamente!")
+    @PostMapping("/clusters/{clusterId}/start")
+    @Operation(summary = "Iniciar Cluster")
+    fun startCluster(@PathVariable clusterId: String): ResponseEntity<String> {
+        return try {
+            databricksService.startCluster(clusterId)
+            ResponseEntity.ok("Cluster iniciado com sucesso!")
         } catch (e: Exception) {
-            e.printStackTrace()
-            ResponseEntity.status(400).body("Erro ao rodar os jobs automaticamente: ${e.message}")
+            ResponseEntity.status(400).body("Erro ao iniciar cluster: ${e.message}")
         }
     }
     // ==================================================================================//
+    @PostMapping("/clusters/{clusterId}/stop")
+    @Operation(summary = "Parar Cluster")
+    fun stopCluster(@PathVariable clusterId: String): ResponseEntity<String> {
+        return try {
+            databricksService.stopCluster(clusterId)
+            ResponseEntity.ok("Cluster parado com sucesso!")
+        } catch (e: Exception) {
+            ResponseEntity.status(400).body("Erro ao parar cluster: ${e.message}")
+        }
+    }
+    //==================================================================================//
+
 }

@@ -8,5 +8,6 @@ interface DatabricksImpl {
     fun getJobs(): List<JobInfo>
     fun getDeltaTable(schema: String, tabela: String, limite: Int): List<Map<String, Any>>
     fun getAllDeltaTables(): List<String>
-    fun runJobsAutomaticamente()
+    fun startCluster(clusterId: String)
+    fun stopCluster(clusterId: String)
 }

@@ -8,6 +8,7 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -96,28 +97,63 @@ class DatabricksService(
         return tables.mapNotNull { it["tableName"] as? String }
     }
 
-    override fun runJobsAutomaticamente() {
-        val url = "$databricksHost/api/2.1/jobs/run_now"
+    override fun startCluster(clusterId: String) {
+        val url = "$databricksHost/api/2.0/clusters/start"
+
         val headers = HttpHeaders().apply {
-            set("Authorization", "Bearer $databricksToken")
-            set("Content-Type", "application/json")
+            setBearerAuth(databricksToken)
+            contentType = MediaType.APPLICATION_JSON
         }
 
+        val payload = mapOf(
+            "cluster_id" to clusterId
+        )
+
         try {
-            val jobs = getJobs()
-            jobs.forEach { job ->
-                val payload = mapOf(
-                    "job_id" to job.id,
-                )
-                val response = restTemplate.postForEntity(url, HttpEntity(payload, headers), String::class.java)
-                if (response.statusCode.is2xxSuccessful()) {
-                    println("Job '${job.id}' executado com sucesso.")
-                } else {
-                    println("Falha ao executar o job '${job.nome}': ${response.statusCode}")
-                }
+            val response = restTemplate.postForEntity(
+                url,
+                HttpEntity(payload, headers),
+                String::class.java
+            )
+
+            if (response.statusCode.is2xxSuccessful) {
+                println("Cluster iniciado com sucesso.")
+            } else {
+                throw RuntimeException("Erro ao iniciar cluster: ${response.statusCode}")
             }
+
         } catch (e: Exception) {
-            throw RuntimeException("Erro ao executar jobs: ${e.message}", e)
+            throw RuntimeException("Erro ao iniciar cluster: ${e.message}", e)
+        }
+    }
+
+    override fun stopCluster(clusterId: String) {
+        val url = "$databricksHost/api/2.0/clusters/delete"
+
+        val headers = HttpHeaders().apply {
+            setBearerAuth(databricksToken)
+            contentType = MediaType.APPLICATION_JSON
+        }
+
+        val payload = mapOf(
+            "cluster_id" to clusterId
+        )
+
+        try {
+            val response = restTemplate.postForEntity(
+                url,
+                HttpEntity(payload, headers),
+                String::class.java
+            )
+
+            if (response.statusCode.is2xxSuccessful) {
+                println("Cluster parado com sucesso.")
+            } else {
+                throw RuntimeException("Erro ao parar cluster: ${response.statusCode}")
+            }
+
+        } catch (e: Exception) {
+            throw RuntimeException("Erro ao parar cluster: ${e.message}", e)
         }
     }
 }
