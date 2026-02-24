@@ -123,4 +123,26 @@ class DatabricksController(
         }
     }
     // ==================================================================================//
+    @Operation(
+        summary = "Rodar Jobs Automaticamente",
+        description = "Roda os jobs automaticamente no Databricks, seguindo a lógica definida no serviço."
+    )
+    @ApiResponse(
+        description = "Jobs rodados automaticamente com sucesso",
+        responseCode = "200",
+    )
+    @ApiResponse(
+        description = "Erro ao rodar os jobs automaticamente",
+        responseCode = "400",
+    )
+    fun runJobsAutomaticamente(): ResponseEntity<String> {
+         return try {
+             databricksService.runJobsAutomaticamente()
+             return ResponseEntity.ok("Jobs automaticamente!")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ResponseEntity.status(400).body("Erro ao rodar os jobs automaticamente: ${e.message}")
+        }
+    }
+    // ==================================================================================//
 }

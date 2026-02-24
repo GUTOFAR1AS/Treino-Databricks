@@ -12,6 +12,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDateTime
+import java.util.UUID
+import kotlin.collections.set
 
 @Service
 class DatabricksService(
@@ -73,6 +75,7 @@ class DatabricksService(
             settings["timeout_seconds"]?.let { configuracoes["timeout_seconds"] = it }
 
             JobInfo(
+                id = job["job_id"]?.toString(),
                 nome = nome,
                 criador = criador,
                 notebookPath = notebookPath,
@@ -91,5 +94,30 @@ class DatabricksService(
         val sql = "SHOW TABLES IN default"
         val tables = jdbcTemplate.queryForList(sql)
         return tables.mapNotNull { it["tableName"] as? String }
+    }
+
+    override fun runJobsAutomaticamente() {
+        val url = "$databricksHost/api/2.1/jobs/run_now"
+        val headers = HttpHeaders().apply {
+            set("Authorization", "Bearer $databricksToken")
+            set("Content-Type", "application/json")
+        }
+
+        try {
+            val jobs = getJobs()
+            jobs.forEach { job ->
+                val payload = mapOf(
+                    "job_id" to job.id,
+                )
+                val response = restTemplate.postForEntity(url, HttpEntity(payload, headers), String::class.java)
+                if (response.statusCode.is2xxSuccessful()) {
+                    println("Job '${job.id}' executado com sucesso.")
+                } else {
+                    println("Falha ao executar o job '${job.nome}': ${response.statusCode}")
+                }
+            }
+        } catch (e: Exception) {
+            throw RuntimeException("Erro ao executar jobs: ${e.message}", e)
+        }
     }
 }
