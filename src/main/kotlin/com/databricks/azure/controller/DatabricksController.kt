@@ -34,7 +34,7 @@ class DatabricksController(
     @PostMapping("/enviar")
     fun enviarParaDatabricks(@RequestBody dados: List<ValidacoesRequest>): ResponseEntity<String> {
         return try {
-            databricksService.enviarDados(dados)
+            databricksService.sendDados(dados)
             ResponseEntity.ok(
                 "Dados enviados com sucesso para a Delta Table!"
             )
@@ -61,7 +61,7 @@ class DatabricksController(
     @GetMapping("/jobs")
     fun consultarJobs(): ResponseEntity<List<JobInfo>> {
         return try {
-            val jobs = databricksService.consultarJobs()
+            val jobs = databricksService.getJobs()
             ResponseEntity.ok(jobs)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -88,7 +88,7 @@ class DatabricksController(
         @RequestParam(required = true) limite: Int,
     ): ResponseEntity<List<Map<String, Any>>> {
         return try {
-            val resultados = databricksService.consultarDeltaTable(
+            val resultados = databricksService.getDeltaTable(
                 schema,
                 tabela,
                 limite
@@ -115,7 +115,7 @@ class DatabricksController(
     @GetMapping("/delta-tables")
     fun consultarTodasDeltaTables(): ResponseEntity<List<String>> {
         return try {
-            val tables = databricksService.consultarTodasDeltaTables()
+            val tables = databricksService.getAllDeltaTables()
             ResponseEntity.ok(tables)
         } catch (e: Exception) {
             e.printStackTrace()
