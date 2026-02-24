@@ -135,6 +135,7 @@ class DatabricksController(
         description = "Erro ao rodar os jobs automaticamente",
         responseCode = "400",
     )
+    @PostMapping("/run-jobs")
     fun runJobsAutomaticamente(): ResponseEntity<String> {
          return try {
              databricksService.runJobsAutomaticamente()
