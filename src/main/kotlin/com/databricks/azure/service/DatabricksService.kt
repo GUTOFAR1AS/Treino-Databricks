@@ -2,6 +2,7 @@ package com.databricks.azure.service
 
 import com.databricks.azure.models.JobInfo
 import com.databricks.azure.models.ValidacoesRequest
+import com.databricks.azure.utils.DateUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
@@ -19,7 +20,7 @@ class DatabricksService(
     @Value("\${databricks.host}") private val databricksHost: String,
     @Value("\${databricks.token}") private val databricksToken: String
 ) : DatabricksImpl {
-    override fun enviarDados(dados: List<ValidacoesRequest>) {
+    override fun sendDados(dados: List<ValidacoesRequest>) {
         val sql =
             "INSERT INTO default.validacoes_temp (" +
                     "descricao," +
@@ -32,18 +33,18 @@ class DatabricksService(
                     "?," +
                     "?" +
                     ")"
-        val agora = LocalDateTime.now().toString()
+        val agora = LocalDateTime.now()
         jdbcTemplate.batchUpdate(sql, dados.map { item ->
             arrayOf(
                 item.descricao,
                 item.cliente,
                 item.competencia,
-                agora
+                DateUtils.formatarHorarioBrasilia(agora)
             )
         })
     }
 
-    override fun consultarJobs(): List<JobInfo> {
+    override fun getJobs(): List<JobInfo> {
         val url = "$databricksHost/api/2.1/jobs/list"
         val headers = HttpHeaders().apply {
             set("Authorization", "Bearer $databricksToken")
@@ -81,8 +82,14 @@ class DatabricksService(
         }
     }
 
-    override fun consultarDeltaTable(schema: String, tabela: String, limite: Int): List<Map<String, Any>> {
+    override fun getDeltaTable(schema: String, tabela: String, limite: Int): List<Map<String, Any>> {
         val sql = "SELECT * FROM $schema.$tabela LIMIT $limite"
         return jdbcTemplate.queryForList(sql) as List<Map<String, Any>>
+    }
+
+    override fun getAllDeltaTables(): List<String> {
+        val sql = "SHOW TABLES IN default"
+        val tables = jdbcTemplate.queryForList(sql)
+        return tables.mapNotNull { it["tableName"] as? String }
     }
 }

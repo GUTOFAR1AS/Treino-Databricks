@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.run.BootRun
+
 plugins {
 	kotlin("jvm") version "2.2.21"
 	kotlin("plugin.spring") version "2.2.21"
@@ -22,15 +24,13 @@ repositories {
 }
 //========================================================================================//
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("tools.jackson.module:jackson-module-kotlin")
 	implementation("com.databricks:databricks-jdbc:3.1.1")
-	implementation("org.hibernate.orm:hibernate-community-dialects:7.2.1.Final")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 //========================================================================================//
-	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 //========================================================================================//
@@ -52,9 +52,8 @@ allOpen {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
-
-tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+tasks.named<BootRun>("bootRun") {
 	jvmArgs = listOf(
-		"--add-opens=java.base/java.nio=ALL-UNNAMED"
+		"--add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED"
 	)
 }
