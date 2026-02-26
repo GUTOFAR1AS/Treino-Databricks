@@ -53,7 +53,7 @@ class MedallionService : IMedallion  {
             .filter { it.validationErrors!!.isEmpty() }
             .map { silver ->
                 ModelGold(
-                    id = silver.id,
+                    idArquivo = silver.id,
                     finalData = silver.cleanedData,
                     aggregatedDate = formatarHorarioBrasilia(agora),
                     businessRules = mapOf(
@@ -63,6 +63,19 @@ class MedallionService : IMedallion  {
                 )
             }
     }
+
+    override fun saveGold(idArquivo: String): List<ModelGold> {
+        val agora = LocalDateTime.now()
+        return listOf(
+            ModelGold(
+                idArquivo = idArquivo,
+                finalData = "DADOS PROCESSEDOS PARA $idArquivo",
+                aggregatedDate = formatarHorarioBrasilia(agora),
+                businessRules = mapOf("length" to 30, "hasNumbers" to true)
+            )
+        )
+    }
+
     private fun validateBasic(line: String): Boolean {
         return line.isNotBlank() && line.length > 2
     }

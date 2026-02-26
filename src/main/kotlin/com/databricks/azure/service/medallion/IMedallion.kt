@@ -8,4 +8,5 @@ interface IMedallion {
     fun processBronze(fileContent: String): List<ModelBronze>
     fun processSilver(bronzeData: List<ModelBronze>): List<ModelSilver>
     fun processGold(silverData: List<ModelSilver>): List<ModelGold>
+    fun saveGold(idArquivo: String): List<ModelGold>
 }
