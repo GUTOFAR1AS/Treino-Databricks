@@ -1,4 +1,4 @@
-package com.databricks.azure.service
+package com.databricks.azure.service.databricks
 
 import com.databricks.azure.models.JobInfo
 import com.databricks.azure.models.ValidacoesRequest
@@ -13,7 +13,6 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDateTime
-import java.util.UUID
 import kotlin.collections.set
 
 @Service

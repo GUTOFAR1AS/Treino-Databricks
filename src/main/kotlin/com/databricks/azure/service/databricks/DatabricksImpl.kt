@@ -1,4 +1,4 @@
-package com.databricks.azure.service
+package com.databricks.azure.service.databricks
 
 import com.databricks.azure.models.JobInfo
 import com.databricks.azure.models.ValidacoesRequest

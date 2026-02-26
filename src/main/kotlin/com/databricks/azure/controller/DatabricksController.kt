@@ -2,7 +2,7 @@ package com.databricks.azure.controller
 
 import com.databricks.azure.models.JobInfo
 import com.databricks.azure.models.ValidacoesRequest
-import com.databricks.azure.service.DatabricksService
+import com.databricks.azure.service.databricks.DatabricksService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.ResponseEntity
