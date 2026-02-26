@@ -17,11 +17,12 @@ import org.springframework.web.multipart.MultipartFile
 class MedallionController(
     private val medallionService: IMedallion,
 ) {
-    @PostMapping("/medallion")
+
+    @PostMapping("/medallion", consumes = ["multipart/form-data"])
     @Operation(summary = "Processa arquivo e executa as etapas Bronze, Silver e Gold")
     @ApiResponse(responseCode = "200", description = "Processamento bem-sucedido")
     fun medallion(
-        @RequestParam("file") file: MultipartFile
+        @RequestParam("file") file: MultipartFile,
     ): List<ModelGold> {
         val fileContent = file.inputStream.bufferedReader().use { it.readText() }
         val bronzeData = medallionService.processBronze(fileContent)
