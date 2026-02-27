@@ -27,14 +27,14 @@ class MedallionController(
         ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     )
     @PostMapping("/medallion", consumes = ["multipart/form-data"])
-    @ApiResponse(responseCode = "200", description = "Processamento bem-sucedido")
-    fun medallion(
-        @RequestParam("file") file: MultipartFile,
-    ): List<ModelGold> {
+    fun medallion(@RequestParam("file") file: MultipartFile): List<ModelGold> {
+        val fileName = file.originalFilename ?: "unknown_file"
         val fileContent = file.inputStream.bufferedReader().use { it.readText() }
-        val bronzeData = medallionService.processBronze(fileContent)
+
+        val bronzeData = medallionService.processBronze(fileContent, fileName)
         val silverData = medallionService.processSilver(bronzeData)
-        return medallionService.processGold(silverData)
+        val goldData = medallionService.processGold(silverData, fileName)
+        return medallionService.saveGoldData(goldData)
     }
     // ===============================================================================================================//
     @Operation(
@@ -49,9 +49,24 @@ class MedallionController(
     @PostMapping("/saveGold")
     fun saveGold(
             @RequestParam("idArquivo") idArquivo: String,
+            @RequestParam("nomeArquivo") nomeArquivo: String
     ): List<ModelGold> {
-        val retorno = medallionService.saveGold(idArquivo)
+        val retorno = medallionService.saveGold(idArquivo, nomeArquivo)
         return retorno
+    }
+    // ===============================================================================================================//
+    @Operation(
+        summary = "Criar a tabela Gold.",
+        description = "Cria a tabela Gold no banco de dados, retornando uma mensagem de sucesso ou erro."
+    )
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Tabela Gold criada com sucesso"),
+        ApiResponse(responseCode = "400", description = "Requisição inválida"),
+        ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    )
+    @PostMapping("/createTableGold")
+    fun createTableGold(): ModelGold {
+        return medallionService.createTableGold()
     }
     // ===============================================================================================================//
 }
